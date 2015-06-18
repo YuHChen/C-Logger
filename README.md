@@ -1,2 +1,2 @@
-# C-Logger
+# CppLogger
 A Logger tool for C++ projects
