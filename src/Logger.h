@@ -63,21 +63,42 @@ namespace Logger {
     logLevel = level;
   }
   
-  // Logs an empty line at the default level
-  void log(void){
-    log("");
+  // Checks if the message is logged at or above (coarser than) the Logger's log level
+  bool canLogMessage(LogLevel messageLogLevel){
+    auto mLogLevel = messageLogLevel;
+    auto loggerLevel = logLevel;
+    
+    return (mLogLevel >= loggerLevel);
   }
+
+  //void beginLogging(void);
+  //void endLogging(void);
+
   
-  // Logs the message at the default level
-  void log(std::string message){
-    log(message, DEFAULT_LOG_LEVEL);
+  // Performs the actual logging to the appropriate stream depending on type
+  void performLogging(std::string message, LogLevel level){
+    // beginLogging();
+    if(canLogMessage(level)){
+      // test
+      std::cout << message << std::endl;
+    }
+    // endLogging();
   }
-  
+
   // Logs the message at the level specified
   void log(std::string message, LogLevel level){
     performLogging(message, level);
   }
-  
+
+  // Logs the message at the default level
+  void log(std::string message){
+    log(message, DEFAULT_LOG_LEVEL);
+  }
+  // Logs an empty line at the default level
+  void log(void){
+    log("");
+  }
+    
   /*
    * Logs a formatted message according to the type specified, 
    * at the corresponding level. 
@@ -110,25 +131,4 @@ namespace Logger {
     
   }
   
-  //void beginLogging(void);
-  //void endLogging(void);
-  
-  // Checks if the message is logged at or above (coarser than) the Logger's log level
-  bool canLogMessage(LogLevel messageLogLevel){
-    auto mLogLevel = messageLogLevel;
-    auto loggerLevel = logLevel;
-    
-    return (mLogLevel >= loggerLevel);
-  }
-  
-  // Performs the actual logging to the appropriate stream depending on type
-  void performLogging(std::string message, LogLevel level){
-    // beginLogging();
-    if(canLogMessage(level)){
-      // test
-      std::cout << message << std::endl;
-    }
-    // endLogging();
-  }
-  
-}
+} // end of namespace Logger
