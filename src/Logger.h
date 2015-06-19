@@ -17,13 +17,13 @@ namespace Logger {
    * Messages at coarser log levels are more likely to be displayed.
    */
   enum class LogLevel : int {
-    FINEST,    // best for debugging
-    FINER,     // usually for debugging
-    FINE,      // usually for output
-    INFO,      // usually for output
-    OUTPUT,    // best for output
-    ERROR,
-    ALL
+    ALL = 0,
+    FINEST = 10,    // best for debugging
+    FINER = 20,     // usually for debugging
+    FINE = 30,      // usually for output
+    INFO = 30,      // usually for output
+    OUTPUT = 999,   // best for output
+    ERROR = 999,
   };
 
   /*
