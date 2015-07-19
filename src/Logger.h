@@ -8,6 +8,22 @@
 
 namespace Logger {
 
+  // ===== Declarations ===== //
+  ///// Types /////
+  enum class LogLevel;
+  enum class LogType;
+  ///// Methods /////
+  void setLogLevel(LogLevel level);
+  bool canLogMessage(LogLevel messageLogLevel);
+  //void beginLogging(void);
+  //void endLogging(void);
+  void performLogging(std::string message, LogLevel level);
+  void log(std::string message, LogType type);
+  void log(std::string message, LogLevel level);
+  void log(std::string message);
+  void log(void);
+
+  // ===== Definitions ===== //
   ///// Types /////
 
   /*
@@ -94,6 +110,7 @@ namespace Logger {
   void log(std::string message){
     log(message, DEFAULT_LOG_LEVEL);
   }
+
   // Logs an empty line at the default level
   void log(void){
     log("");
