@@ -42,7 +42,7 @@ int main(int argc, char **argv){
   setLogLevel(logLevel);
 
   log("Hello World!");
-  log("INFO message!", LogLevel::INFO);
+  log("INFO message!", LogLevel::INFO, 1);
   log("t = 5", LogType::DEBUG);
 
   log("ClassA::setData(const int)", LogType::METHOD);

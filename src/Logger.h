@@ -14,12 +14,16 @@ namespace Logger {
   enum class LogType;
   ///// Methods /////
   void setLogLevel(LogLevel level);
+  void setIndentLevel(int indentLevel);
   bool canLogMessage(LogLevel messageLogLevel);
   //void beginLogging(void);
   //void endLogging(void);
-  void performLogging(std::string message, LogLevel level);
+  void performLogging(std::string message, LogLevel level, int indent);
+  void log(std::string message, LogType type, int indent);
   void log(std::string message, LogType type);
+  void log(std::string message, LogLevel level, int indent);
   void log(std::string message, LogLevel level);
+  void log(std::string message, int indent);
   void log(std::string message);
   void log(void);
 
@@ -47,7 +51,7 @@ namespace Logger {
    * Types toward the top are logged at lower levels 
    * than types toward the bottom.
    * ie: CONSTRUCTOR logs at FINEST, while DEBUG logs at FINER
-   */
+   */ 
   enum class LogType : int {
     CONSTRUCTOR,   // FINEST
     OPERATOR,      // FINEST
@@ -57,13 +61,15 @@ namespace Logger {
 
   ///// Constants /////
   
-  static const std::string INDENT;
-  static const int DEFAULT_INDENT_LEVEL = 1;
+  static const std::string INDENT = "   ";    // size of an indent
+  static const int BASE_INDENT_LEVEL = 0;     // lowest indent level
+  static const int DEFAULT_INDENT_LEVEL = 0;                   
   static const LogLevel DEFAULT_LOG_LEVEL = LogLevel::FINE;
   
   ///// Fields /////
   
-  static LogLevel logLevel = DEFAULT_LOG_LEVEL;
+  static LogLevel logLevel = DEFAULT_LOG_LEVEL;      // current log level of the logger
+  static int indentLevel = DEFAULT_INDENT_LEVEL;     // current indent level for messages
   //static bool logToFile = false;
   //std::vector<std::string> filenames;
   
@@ -78,6 +84,15 @@ namespace Logger {
   void setLogLevel(LogLevel level){
     logLevel = level;
   }
+
+  /*
+   * Sets the indent level of the Logger.
+   * Messages without a specified indent level, logged after this method,
+   * will be logged at indentLevel specified.
+   */
+  void setIndentLevel(int indentLevel){
+    indentLevel = indentLevel;
+  }
   
   // Checks if the message is logged at or above (coarser than) the Logger's log level
   bool canLogMessage(LogLevel messageLogLevel){
@@ -89,26 +104,42 @@ namespace Logger {
 
   //void beginLogging(void);
   //void endLogging(void);
-
   
   // Performs the actual logging to the appropriate stream depending on type
-  void performLogging(std::string message, LogLevel level){
+  void performLogging(std::string message, LogLevel level, int indent){
     // beginLogging();
+    std::string indentedMessage = "";
+    for(int i = BASE_INDENT_LEVEL; i < indent; i++){
+      indentedMessage += INDENT;
+    }
+    indentedMessage += message;
     if(canLogMessage(level)){
+      // place the message at the correct indent level
+      
       // test
-      std::cout << message << std::endl;
+      std::cout << indentedMessage << std::endl;
     }
     // endLogging();
   }
 
-  // Logs the message at the level specified
-  void log(std::string message, LogLevel level){
-    performLogging(message, level);
+  // Logs the message at the level specified with specified indent level
+  void log(std::string message, LogLevel level, int indent){
+    performLogging(message, level, indent);
   }
 
-  // Logs the message at the default level
+  // Logs the message at the level specified with the current indent level
+  void log(std::string message, LogLevel level){
+    performLogging(message, level, indentLevel);
+  }
+
+  // Logs the message at the default level with specified indent level
+  void log(std::string message, int indent){
+    log(message, DEFAULT_LOG_LEVEL, indent);
+  }
+
+  // Logs the message at the default level with the current indent level
   void log(std::string message){
-    log(message, DEFAULT_LOG_LEVEL);
+    log(message, DEFAULT_LOG_LEVEL, indentLevel);
   }
 
   // Logs an empty line at the default level
