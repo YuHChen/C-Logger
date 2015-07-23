@@ -81,6 +81,9 @@ namespace Logger {
    * Messages logged at levels below (finer than) the level specified
    * will be not displayed, while messages above (coarser than) will
    * be displayed.
+   * WARNING: This should be called only once at the beginning of the
+   * program. Calling it elsewhere, in a multithreaded program, can 
+   * potentially cause messages to not appear when it should have.
    */
   void setLogLevel(LogLevel level){
     logLevel_lock.lock();
