@@ -40,8 +40,9 @@ int main(int argc, char **argv){
   }
 
   setLogLevel(logLevel);
+  setIndentLevel(2);
 
-  log("Hello World!");
+  log("Hello \tWorld!\n");
   log("INFO message!", LogLevel::INFO, 1);
   log("t = 5", LogType::DEBUG);
 
