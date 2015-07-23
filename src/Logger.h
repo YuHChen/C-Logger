@@ -14,7 +14,7 @@ namespace Logger {
   enum class LogType;
   ///// Methods /////
   void setLogLevel(LogLevel level);
-  void setIndentLevel(int indentLevel);
+  void setIndentLevel(int level);
   bool canLogMessage(LogLevel messageLogLevel);
   //void beginLogging(void);
   //void endLogging(void);
@@ -90,8 +90,8 @@ namespace Logger {
    * Messages without a specified indent level, logged after this method,
    * will be logged at indentLevel specified.
    */
-  void setIndentLevel(int indentLevel){
-    indentLevel = indentLevel;
+  void setIndentLevel(int level){
+    indentLevel = level;
   }
   
   // Checks if the message is logged at or above (coarser than) the Logger's log level
