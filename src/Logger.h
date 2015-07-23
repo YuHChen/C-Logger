@@ -3,8 +3,7 @@
 #include <string>
 //#include <vector>
 #include <type_traits>
-
-/* ADD LOCK for thread safety */
+#include <mutex>
 
 namespace Logger {
 
@@ -16,8 +15,8 @@ namespace Logger {
   void setLogLevel(LogLevel level);
   void setIndentLevel(int level);
   bool canLogMessage(LogLevel messageLogLevel);
-  //void beginLogging(void);
-  //void endLogging(void);
+  void beginLogging(void);
+  void endLogging(void);
   void performLogging(std::string message, LogLevel level, int indent);
   void log(std::string message, LogType type, int indent);
   void log(std::string message, LogType type);
@@ -65,7 +64,9 @@ namespace Logger {
   static const int BASE_INDENT_LEVEL = 0;     // lowest indent level
   static const int DEFAULT_INDENT_LEVEL = 0;                   
   static const LogLevel DEFAULT_LOG_LEVEL = LogLevel::FINE;
-  
+  static const std::mutex logLevel_lock;
+  static const std::mutex indentLevel_lock;
+
   ///// Fields /////
   
   static LogLevel logLevel = DEFAULT_LOG_LEVEL;      // current log level of the logger
@@ -82,7 +83,9 @@ namespace Logger {
    * be displayed.
    */
   void setLogLevel(LogLevel level){
+    logLevel_lock.lock();
     logLevel = level;
+    logLevel_lock.unlock();
   }
 
   /*
@@ -91,7 +94,9 @@ namespace Logger {
    * will be logged at indentLevel specified.
    */
   void setIndentLevel(int level){
+    indentLevel_lock.lock();
     indentLevel = level;
+    indentLevel_lock.unlock();
   }
   
   // Checks if the message is logged at or above (coarser than) the Logger's log level
@@ -102,24 +107,30 @@ namespace Logger {
     return (mLogLevel >= loggerLevel);
   }
 
-  //void beginLogging(void);
-  //void endLogging(void);
+  void beginLogging(void){
+    logLevel_lock.lock();
+    indentLevel_lock.lock();
+  }
+  
+  void endLogging(void){
+    logLevel_lock.unlock();
+    indentLevel_lock.unlock();
+  }
   
   // Performs the actual logging to the appropriate stream depending on type
   void performLogging(std::string message, LogLevel level, int indent){
-    // beginLogging();
+    beginLogging();
+    // place the message at the correct indent level
     std::string indentedMessage = "";
     for(int i = BASE_INDENT_LEVEL; i < indent; i++){
       indentedMessage += INDENT;
     }
     indentedMessage += message;
     if(canLogMessage(level)){
-      // place the message at the correct indent level
-      
-      // test
+      // change implementation here for different behaviors
       std::cout << indentedMessage << std::endl;
     }
-    // endLogging();
+    endLogging();
   }
 
   // Logs the message at the level specified with specified indent level
