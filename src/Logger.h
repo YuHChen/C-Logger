@@ -64,13 +64,13 @@ namespace Logger {
   static const int BASE_INDENT_LEVEL = 0;     // lowest indent level
   static const int DEFAULT_INDENT_LEVEL = 0;                   
   static const LogLevel DEFAULT_LOG_LEVEL = LogLevel::FINE;
-  static const std::mutex logLevel_lock;
-  static const std::mutex indentLevel_lock;
 
   ///// Fields /////
   
   static LogLevel logLevel = DEFAULT_LOG_LEVEL;      // current log level of the logger
   static int indentLevel = DEFAULT_INDENT_LEVEL;     // current indent level for messages
+  static std::mutex logLevel_lock;
+  static std::mutex indentLevel_lock;
   //static bool logToFile = false;
   //std::vector<std::string> filenames;
   
