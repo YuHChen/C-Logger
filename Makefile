@@ -8,7 +8,8 @@ SRC_FILES = \
 
 OBJ_FILES := $(SRC_FILES:.cpp=.o)
 
-CPPFLAGS = -g -Wall -std=c++11
+# must include -pthread in compiler and linker to enable multithreading
+CPPFLAGS = -g -Wall -pthread -std=c++11
 
 all:	$(TARGET)
 
