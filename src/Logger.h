@@ -1,8 +1,8 @@
 #include <iostream>
-//#include <fstream>
+#include <fstream>
 #include <string>
-//#include <vector>
-#include <type_traits>
+#include <map>
+//#include <type_traits>
 #include <mutex>
 
 namespace Logger {
@@ -14,6 +14,7 @@ namespace Logger {
   ///// Methods /////
   void setLogLevel(LogLevel level);
   void setIndentLevel(int level);
+  bool addLogFile(std::string filename);
   bool canLogMessage(LogLevel messageLogLevel);
   void beginLogging(void);
   void endLogging(void);
@@ -72,7 +73,7 @@ namespace Logger {
   static std::mutex logLevel_lock;
   static std::mutex indentLevel_lock;
   //static bool logToFile = false;
-  //std::vector<std::string> filenames;
+  static std::map<std::string,std::ofstream> logFiles;
   
   ///// Methods /////
   
@@ -100,6 +101,22 @@ namespace Logger {
     indentLevel_lock.lock();
     indentLevel = level;
     indentLevel_lock.unlock();
+  }
+
+  /*
+   * Adds a file to output log messages; filenames must be unique.
+   * Doing so causes the logger to log to a file instead of stdout.
+   * Returns true if successfully added the file, false otherwise.
+   */
+  bool addLogFile(std::string filename){
+    // Open the file (create the file if it doesn't exist, if it does exist, append to it)
+    std::ofstream logFile;
+    logFile.open(filename, std::ofstream::out | std::ofstream::app);
+    
+    // Add the file to the list
+    bool inserted = logFiles.insert(std::pair<std::string,std::ofstream>(filename,logFile)).second;
+
+    return inserted;
   }
   
   // Checks if the message is logged at or above (coarser than) the Logger's log level
@@ -131,7 +148,16 @@ namespace Logger {
     indentedMessage += message;
     if(canLogMessage(level)){
       // change implementation here for different behaviors
-      std::cout << indentedMessage << std::endl;
+      if(logFiles.empty()){
+	// Log to stdout
+	std::cout << indentedMessage << std::endl;
+      }
+      else{
+	// Log to files
+	for(auto& file : logFiles){
+	  file.second << indentedMessage << std::endl;
+	}
+      }
     }
     endLogging();
   }
