@@ -3,7 +3,7 @@
 #include <string>
 #include <utility>
 #include <map>
-//#include <type_traits>
+#include <type_traits>
 #include <mutex>
 
 namespace Logger {
