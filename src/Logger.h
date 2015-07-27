@@ -1,21 +1,24 @@
-#include <iostream>
 #include <fstream>
-#include <string>
-#include <utility>
+#include <iostream>
 #include <map>
-#include <type_traits>
+#include <memory>
 #include <mutex>
+#include <string>
+#include <type_traits>
+#include <utility>
 
 namespace Logger {
 
   // ===== Declarations ===== //
   ///// Types /////
+  typedef std::shared_ptr<std::ofstream> file_ptr;
   enum class LogLevel;
   enum class LogType;
   ///// Methods /////
   void setLogLevel(LogLevel level);
   void setIndentLevel(int level);
   bool addLogFile(std::string filename);
+  bool removeLogFile(std::string filename);
   bool canLogMessage(LogLevel messageLogLevel);
   void beginLogging(void);
   void endLogging(void);
@@ -74,8 +77,9 @@ namespace Logger {
   static std::mutex logLevel_lock;
   static std::mutex indentLevel_lock;
   //static bool logToFile = false;
-  static std::map<std::string,std::ofstream> logFiles;
-  
+  //static std::map<std::string,std::ofstream> logFiles;
+  std::map<std::string, file_ptr> logFiles;
+
   ///// Methods /////
   
   /* 
@@ -111,13 +115,23 @@ namespace Logger {
    */
   bool addLogFile(std::string filename){
     // Open the file (create the file if it doesn't exist, if it does exist, append to it)
-    std::ofstream logFile;
-    logFile.open(filename, std::ofstream::out | std::ofstream::app);
+    file_ptr logFile(new std::ofstream(filename, std::ofstream::out | std::ofstream::app));
     
     // Add the file to the list
-    bool inserted = logFiles.insert(std::pair<std::string,std::ofstream>(filename,logFile)).second;
+    bool inserted = logFiles.insert(std::pair<std::string, file_ptr>(filename, logFile)).second;
 
     return inserted;
+  }
+  
+  /*
+   * Remove a file from logger's list of files to output log messages.
+   * If removal of the file results in an empty list, the logger will
+   * return to logging to stdout. Returns true if sucessfully removed 
+   * the file, false otherwise.
+   */
+  bool removeLogFile(std::string filename){
+    logFiles[filename]->close();
+    return (logFiles.erase(filename) > 0);
   }
   
   // Checks if the message is logged at or above (coarser than) the Logger's log level
@@ -156,7 +170,7 @@ namespace Logger {
       else{
 	// Log to files
 	for(auto& file : logFiles){
-	  file.second << indentedMessage << std::endl;
+	  *file.second << indentedMessage << std::endl;
 	}
       }
     }
