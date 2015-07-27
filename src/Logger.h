@@ -1,23 +1,27 @@
+#include <fstream>
 #include <iostream>
-//#include <fstream>
+#include <map>
+#include <memory>
+#include <mutex>
 #include <string>
-//#include <vector>
 #include <type_traits>
-
-/* ADD LOCK for thread safety */
+#include <utility>
 
 namespace Logger {
 
   // ===== Declarations ===== //
   ///// Types /////
+  typedef std::shared_ptr<std::ofstream> file_ptr;
   enum class LogLevel;
   enum class LogType;
   ///// Methods /////
   void setLogLevel(LogLevel level);
-  void setIndentLevel(int indentLevel);
+  void setIndentLevel(int level);
+  bool addLogFile(std::string filename);
+  bool removeLogFile(std::string filename);
   bool canLogMessage(LogLevel messageLogLevel);
-  //void beginLogging(void);
-  //void endLogging(void);
+  void beginLogging(void);
+  void endLogging(void);
   void performLogging(std::string message, LogLevel level, int indent);
   void log(std::string message, LogType type, int indent);
   void log(std::string message, LogType type);
@@ -65,14 +69,17 @@ namespace Logger {
   static const int BASE_INDENT_LEVEL = 0;     // lowest indent level
   static const int DEFAULT_INDENT_LEVEL = 0;                   
   static const LogLevel DEFAULT_LOG_LEVEL = LogLevel::FINE;
-  
+
   ///// Fields /////
   
   static LogLevel logLevel = DEFAULT_LOG_LEVEL;      // current log level of the logger
   static int indentLevel = DEFAULT_INDENT_LEVEL;     // current indent level for messages
+  static std::mutex logLevel_lock;
+  static std::mutex indentLevel_lock;
   //static bool logToFile = false;
-  //std::vector<std::string> filenames;
-  
+  //static std::map<std::string,std::ofstream> logFiles;
+  std::map<std::string, file_ptr> logFiles;
+
   ///// Methods /////
   
   /* 
@@ -80,9 +87,14 @@ namespace Logger {
    * Messages logged at levels below (finer than) the level specified
    * will be not displayed, while messages above (coarser than) will
    * be displayed.
+   * WARNING: This should be called only once at the beginning of the
+   * program. Calling it elsewhere, in a multithreaded program, can 
+   * potentially cause messages to not appear when it should have.
    */
   void setLogLevel(LogLevel level){
+    logLevel_lock.lock();
     logLevel = level;
+    logLevel_lock.unlock();
   }
 
   /*
@@ -90,8 +102,36 @@ namespace Logger {
    * Messages without a specified indent level, logged after this method,
    * will be logged at indentLevel specified.
    */
-  void setIndentLevel(int indentLevel){
-    indentLevel = indentLevel;
+  void setIndentLevel(int level){
+    indentLevel_lock.lock();
+    indentLevel = level;
+    indentLevel_lock.unlock();
+  }
+
+  /*
+   * Adds a file to output log messages; filenames must be unique.
+   * Doing so causes the logger to log to a file instead of stdout.
+   * Returns true if successfully added the file, false otherwise.
+   */
+  bool addLogFile(std::string filename){
+    // Open the file (create the file if it doesn't exist, if it does exist, append to it)
+    file_ptr logFile(new std::ofstream(filename, std::ofstream::out | std::ofstream::app));
+    
+    // Add the file to the list
+    bool inserted = logFiles.insert(std::pair<std::string, file_ptr>(filename, logFile)).second;
+
+    return inserted;
+  }
+  
+  /*
+   * Remove a file from logger's list of files to output log messages.
+   * If removal of the file results in an empty list, the logger will
+   * return to logging to stdout. Returns true if sucessfully removed 
+   * the file, false otherwise.
+   */
+  bool removeLogFile(std::string filename){
+    logFiles[filename]->close();
+    return (logFiles.erase(filename) > 0);
   }
   
   // Checks if the message is logged at or above (coarser than) the Logger's log level
@@ -102,24 +142,39 @@ namespace Logger {
     return (mLogLevel >= loggerLevel);
   }
 
-  //void beginLogging(void);
-  //void endLogging(void);
+  void beginLogging(void){
+    logLevel_lock.lock();
+    indentLevel_lock.lock();
+  }
+  
+  void endLogging(void){
+    logLevel_lock.unlock();
+    indentLevel_lock.unlock();
+  }
   
   // Performs the actual logging to the appropriate stream depending on type
   void performLogging(std::string message, LogLevel level, int indent){
-    // beginLogging();
+    beginLogging();
+    // place the message at the correct indent level
     std::string indentedMessage = "";
     for(int i = BASE_INDENT_LEVEL; i < indent; i++){
       indentedMessage += INDENT;
     }
     indentedMessage += message;
     if(canLogMessage(level)){
-      // place the message at the correct indent level
-      
-      // test
-      std::cout << indentedMessage << std::endl;
+      // change implementation here for different behaviors
+      if(logFiles.empty()){
+	// Log to stdout
+	std::cout << indentedMessage << std::endl;
+      }
+      else{
+	// Log to files
+	for(auto& file : logFiles){
+	  *file.second << indentedMessage << std::endl;
+	}
+      }
     }
-    // endLogging();
+    endLogging();
   }
 
   // Logs the message at the level specified with specified indent level

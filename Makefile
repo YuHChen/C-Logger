@@ -21,6 +21,6 @@ $(TARGET):	$(OBJ_FILES)
 	g++ $(CPPFLAGS) -c $^ -o $@
 
 clean:
-	rm -f *~ *# *.o *.exe $(TARGET)
+	rm -f *~ *# *.o *.exe *.log $(TARGET)
 	rm -f $(SRC_DIR)/*~ $(SRC_DIR)/*# $(SRC_DIR)/*.o $(SRC_DIR)/*.exe
 	rm -f $(TEST_DIR)/*~ $(TEST_DIR)/*# $(TEST_DIR)/*.o $(TEST_DIR)/*.exe

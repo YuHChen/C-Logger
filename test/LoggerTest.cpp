@@ -55,6 +55,10 @@ int main(int argc, char **argv){
   }
 
   setLogLevel(logLevel);
+  std::string logFileName = "loggerTest.log";
+  if(!addLogFile(logFileName)){
+    log("Failed to add log file: " + logFileName, LogLevel::ERROR);
+  }
 
   // Test message LogLevel/LogType/indent
   setIndentLevel(2);
@@ -67,6 +71,13 @@ int main(int argc, char **argv){
   log("ClassA::ClassA() [default constructor]", LogType::CONSTRUCTOR);
 
   // Threaded test
+  if(!removeLogFile(logFileName)){
+    log("Failed to removed log file: " + logFileName, LogLevel::ERROR);
+  }
+  std::string threadLogFileName = "threadTest.log";
+  if(!addLogFile(threadLogFileName)){
+    log("Failed to add log file: " + threadLogFileName, LogLevel::ERROR);
+  }
   setIndentLevel(0);
   std::vector<std::thread> threads;
   
@@ -87,16 +98,10 @@ int main(int argc, char **argv){
   }
 }
 
-void threadedMessageFINE(long id){
-  long tid = id;
-  Logger::log("Thread id: " + std::to_string(tid));
-
-  for(int i = 0; i < NUM_MESSAGES; i++){
-    Logger::setLogLevel(Logger::LogLevel::FINE);
+std::string cur_formatted_time(void){
     auto t = std::time(nullptr);
     //auto tm = *std::localtime(&t);
     auto tm = std::localtime(&t);
-
     char timestamp[TS_BUF_SIZE];
 
     std::stringstream buf;
@@ -104,8 +109,31 @@ void threadedMessageFINE(long id){
     if(std::strftime(timestamp, sizeof(timestamp), "%T", tm)){
       buf << timestamp;
     }
+    
+    return buf.str();
+}
 
-    Logger::log("Thread " + std::to_string(tid) + " log at " + buf.str() + " FINE", Logger::LogLevel::FINE);
+std::string milli_since_epoch(void){
+  auto now = std::chrono::high_resolution_clock::now();
+  auto duration = now.time_since_epoch();
+  auto millis = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+
+  std::stringstream buf;
+  buf<< millis;
+
+  return buf.str();
+}
+
+void threadedMessageFINE(long id){
+  long tid = id;
+  Logger::log("Thread id: " + std::to_string(tid));
+
+  for(int i = 0; i < NUM_MESSAGES; i++){
+    //Logger::setLogLevel(Logger::LogLevel::FINE);
+
+    std::string timestamp = milli_since_epoch();
+
+    Logger::log("Thread " + std::to_string(tid) + " log at " + timestamp + " FINE", Logger::LogLevel::FINE);
 
   }
 }
@@ -115,20 +143,11 @@ void threadedMessageFINEST(long id){
   Logger::log("Thread id: " + std::to_string(tid));
 
   for(int i = 0; i < NUM_MESSAGES; i++){
-    Logger::setLogLevel(Logger::LogLevel::FINEST);
-    auto t = std::time(nullptr);
-    //auto tm = *std::localtime(&t);
-    auto tm = std::localtime(&t);
+    //Logger::setLogLevel(Logger::LogLevel::FINEST);
 
-    char timestamp[TS_BUF_SIZE];
+    std::string timestamp = milli_since_epoch();
 
-    std::stringstream buf;
-    //buf << std::put_time(&tm, "%m/%d/%y");
-    if(std::strftime(timestamp, sizeof(timestamp), "%T", tm)){
-      buf << timestamp;
-    }
-
-    Logger::log("Thread " + std::to_string(tid) + " log at " + buf.str() + " FINEST", Logger::LogLevel::FINEST);
+    Logger::log("Thread " + std::to_string(tid) + " log at " + timestamp + " FINEST", Logger::LogLevel::FINEST);
   }
   
 }
