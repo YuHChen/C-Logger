@@ -1,3 +1,6 @@
+#ifndef _LOGGER_H_
+#define _LOGGER_H_
+
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -235,3 +238,5 @@ namespace Logger {
   }
   
 } // end of namespace Logger
+
+#endif
