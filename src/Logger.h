@@ -192,31 +192,26 @@ namespace {
 
   // Logs the message at the level specified with specified indent level
   void log(std::string message, LogLevel level, int indent){
-    SUPPRESS_UNUSED_WARNING(log);
     performLogging(message, level, indent);
   }
 
   // Logs the message at the level specified with the current indent level
   void log(std::string message, LogLevel level){
-    SUPPRESS_UNUSED_WARNING(log);    
     performLogging(message, level, indentLevel);
   }
 
   // Logs the message at the default level with specified indent level
   void log(std::string message, int indent){
-    SUPPRESS_UNUSED_WARNING(log);
     log(message, DEFAULT_LOG_LEVEL, indent);
   }
 
   // Logs the message at the default level with the current indent level
   void log(std::string message){
-    SUPPRESS_UNUSED_WARNING(log);
     log(message, DEFAULT_LOG_LEVEL, indentLevel);
   }
 
   // Logs an empty line at the default level
   void log(void){
-    SUPPRESS_UNUSED_WARNING(log);
     log("");
   }
     
@@ -231,7 +226,6 @@ namespace {
    * DEBUG: NO FORMAT
    */
   void log(std::string message, LogType type){
-    SUPPRESS_UNUSED_WARNING(log);
     LogType messageType = type;
     std::string formattedMessage = "Called ";
     switch(messageType){
@@ -251,6 +245,19 @@ namespace {
       log(message);
     }
     
+  }
+
+  // Dummy function to suppress unused-function warnings
+  void wno_unused_function_logger(void){
+    SUPPRESS_UNUSED_WARNING(wno_unused_function_logger);
+    // Suppress warnings for overloaded log() functions
+    (void)log("", LogType::METHOD, 1);
+    (void)log("", LogType::METHOD);
+    (void)log("", LogLevel::FINEST, 1);
+    (void)log("", LogLevel::FINEST);
+    (void)log("", 1);
+    (void)log("");
+    (void)log();
   }
   
 } // end of namespace
