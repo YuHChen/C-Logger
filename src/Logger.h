@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace Logger {
+namespace {
 
   // ===== Declarations ===== //
   ///// Types /////
@@ -237,6 +237,6 @@ namespace Logger {
     
   }
   
-} // end of namespace Logger
+} // end of namespace
 
 #endif
