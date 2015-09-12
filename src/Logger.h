@@ -216,8 +216,8 @@ namespace {
   }
     
   /*
-   * Logs a formatted message according to the type specified, 
-   * at the corresponding level. 
+   * Logs a formatted message according to the type specified 
+   * at the corresponding level with specified indent level. 
    * Messages are expected to have the following format 
    * for the corresponding type:
    * CONSTRUCTOR: SCOPE::CONSTRUCTOR(PARAMS) [type of constructor]
@@ -225,26 +225,31 @@ namespace {
    * METHOD: SCOPE::FUNCTION_NAME(PARAMS)
    * DEBUG: NO FORMAT
    */
-  void log(std::string message, LogType type){
+  void log(std::string message, LogType type, int indent){
     LogType messageType = type;
     std::string formattedMessage = "Called ";
     switch(messageType){
     case LogType::CONSTRUCTOR:
     case LogType::OPERATOR:
     formattedMessage += message;
-    log(formattedMessage, LogLevel::FINEST);
+    log(formattedMessage, LogLevel::FINEST, indent);
     break;
     case LogType::METHOD:
       formattedMessage += message;
-      log(formattedMessage, LogLevel::FINER);
+      log(formattedMessage, LogLevel::FINER, indent);
       break;
     case LogType::DEBUG:
-      log(message, LogLevel::FINER);
+      log(message, LogLevel::FINER, indent);
       break;
     default:
-      log(message);
+      log(message, indent);
     }
     
+  }
+
+  // Logs a formatted message according to the type specified at the corresponding level with the current indent level
+  void log(std::string message, LogType type){
+    log(message, type, indentLevel);
   }
 
   // Dummy function to suppress unused-function warnings
