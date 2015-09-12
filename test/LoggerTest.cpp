@@ -24,8 +24,6 @@ int main(int argc, char **argv){
   else
     logLevelString = "fine";
     
-
-  using namespace Logger;
   LogLevel logLevel;
 
   // Convert log level string to LogLevel
@@ -126,28 +124,28 @@ std::string milli_since_epoch(void){
 
 void threadedMessageFINE(long id){
   long tid = id;
-  Logger::log("Thread id: " + std::to_string(tid));
+  log("Thread id: " + std::to_string(tid));
 
   for(int i = 0; i < NUM_MESSAGES; i++){
     //Logger::setLogLevel(Logger::LogLevel::FINE);
 
     std::string timestamp = milli_since_epoch();
 
-    Logger::log("Thread " + std::to_string(tid) + " log at " + timestamp + " FINE", Logger::LogLevel::FINE);
+    log("Thread " + std::to_string(tid) + " log at " + timestamp + " FINE", LogLevel::FINE);
 
   }
 }
 
 void threadedMessageFINEST(long id){
   long tid = id;
-  Logger::log("Thread id: " + std::to_string(tid));
+  log("Thread id: " + std::to_string(tid));
 
   for(int i = 0; i < NUM_MESSAGES; i++){
     //Logger::setLogLevel(Logger::LogLevel::FINEST);
 
     std::string timestamp = milli_since_epoch();
 
-    Logger::log("Thread " + std::to_string(tid) + " log at " + timestamp + " FINEST", Logger::LogLevel::FINEST);
+    log("Thread " + std::to_string(tid) + " log at " + timestamp + " FINEST", LogLevel::FINEST);
   }
   
 }
