@@ -10,6 +10,8 @@
 #include <type_traits>
 #include <utility>
 
+#define SUPPRESS_UNUSED_WARNING(unused) do{ (void)unused; } while(0)
+
 namespace {
 
   // ===== Declarations ===== //
@@ -95,6 +97,7 @@ namespace {
    * potentially cause messages to not appear when it should have.
    */
   void setLogLevel(LogLevel level){
+    SUPPRESS_UNUSED_WARNING(setLogLevel);
     logLevel_lock.lock();
     logLevel = level;
     logLevel_lock.unlock();
@@ -106,6 +109,7 @@ namespace {
    * will be logged at indentLevel specified.
    */
   void setIndentLevel(int level){
+    SUPPRESS_UNUSED_WARNING(setIndentLevel);
     indentLevel_lock.lock();
     indentLevel = level;
     indentLevel_lock.unlock();
@@ -117,6 +121,7 @@ namespace {
    * Returns true if successfully added the file, false otherwise.
    */
   bool addLogFile(std::string filename){
+    SUPPRESS_UNUSED_WARNING(addLogFile);
     // Open the file (create the file if it doesn't exist, if it does exist, append to it)
     file_ptr logFile(new std::ofstream(filename, std::ofstream::out | std::ofstream::app));
     
@@ -133,12 +138,14 @@ namespace {
    * the file, false otherwise.
    */
   bool removeLogFile(std::string filename){
+    SUPPRESS_UNUSED_WARNING(removeLogFile);
     logFiles[filename]->close();
     return (logFiles.erase(filename) > 0);
   }
   
   // Checks if the message is logged at or above (coarser than) the Logger's log level
   bool canLogMessage(LogLevel messageLogLevel){
+    SUPPRESS_UNUSED_WARNING(canLogMessage);
     auto mLogLevel = messageLogLevel;
     auto loggerLevel = logLevel;
     
@@ -146,17 +153,20 @@ namespace {
   }
 
   void beginLogging(void){
+    SUPPRESS_UNUSED_WARNING(beginLogging);
     logLevel_lock.lock();
     indentLevel_lock.lock();
   }
   
   void endLogging(void){
+    SUPPRESS_UNUSED_WARNING(endLogging);
     logLevel_lock.unlock();
     indentLevel_lock.unlock();
   }
   
   // Performs the actual logging to the appropriate stream depending on type
   void performLogging(std::string message, LogLevel level, int indent){
+    SUPPRESS_UNUSED_WARNING(performLogging);
     beginLogging();
     // place the message at the correct indent level
     std::string indentedMessage = "";
@@ -182,26 +192,31 @@ namespace {
 
   // Logs the message at the level specified with specified indent level
   void log(std::string message, LogLevel level, int indent){
+    SUPPRESS_UNUSED_WARNING(log);
     performLogging(message, level, indent);
   }
 
   // Logs the message at the level specified with the current indent level
   void log(std::string message, LogLevel level){
+    SUPPRESS_UNUSED_WARNING(log);    
     performLogging(message, level, indentLevel);
   }
 
   // Logs the message at the default level with specified indent level
   void log(std::string message, int indent){
+    SUPPRESS_UNUSED_WARNING(log);
     log(message, DEFAULT_LOG_LEVEL, indent);
   }
 
   // Logs the message at the default level with the current indent level
   void log(std::string message){
+    SUPPRESS_UNUSED_WARNING(log);
     log(message, DEFAULT_LOG_LEVEL, indentLevel);
   }
 
   // Logs an empty line at the default level
   void log(void){
+    SUPPRESS_UNUSED_WARNING(log);
     log("");
   }
     
@@ -216,6 +231,7 @@ namespace {
    * DEBUG: NO FORMAT
    */
   void log(std::string message, LogType type){
+    SUPPRESS_UNUSED_WARNING(log);
     LogType messageType = type;
     std::string formattedMessage = "Called ";
     switch(messageType){
