@@ -10,29 +10,33 @@
 #include <type_traits>
 #include <utility>
 
-namespace Logger {
-
-  // ===== Declarations ===== //
-  ///// Types /////
+class Logger {
   typedef std::shared_ptr<std::ofstream> file_ptr;
-  enum class LogLevel;
-  enum class LogType;
+  
+  // ===== Declarations ===== //
+ private:
   ///// Methods /////
-  void setLogLevel(LogLevel level);
-  void setIndentLevel(int level);
-  bool addLogFile(std::string filename);
-  bool removeLogFile(std::string filename);
   bool canLogMessage(LogLevel messageLogLevel);
   void beginLogging(void);
   void endLogging(void);
   void performLogging(std::string message, LogLevel level, int indent);
-  void log(std::string message, LogType type, int indent);
-  void log(std::string message, LogType type);
-  void log(std::string message, LogLevel level, int indent);
-  void log(std::string message, LogLevel level);
-  void log(std::string message, int indent);
-  void log(std::string message);
-  void log(void);
+  
+ public:
+  ///// Types /////
+  enum class LogLevel;
+  enum class LogType;
+  ///// Methods /////
+  static void setLogLevel(LogLevel level);
+  static void setIndentLevel(int level);
+  static bool addLogFile(std::string filename);
+  static bool removeLogFile(std::string filename);
+  static void log(std::string message, LogType type, int indent);
+  static void log(std::string message, LogType type);
+  static void log(std::string message, LogLevel level, int indent);
+  static void log(std::string message, LogLevel level);
+  static void log(std::string message, int indent);
+  static void log(std::string message);
+  static void log(void);
 
   // ===== Definitions ===== //
   ///// Types /////
@@ -237,6 +241,6 @@ namespace Logger {
     
   }
   
-} // end of namespace Logger
+}; // end of class Logger
 
 #endif
