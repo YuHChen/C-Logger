@@ -10,7 +10,9 @@
 #include <type_traits>
 #include <utility>
 
-namespace Logger {
+#define SUPPRESS_UNUSED_WARNING(unused) do{ (void)unused; } while(0)
+
+namespace {
 
   // ===== Declarations ===== //
   ///// Types /////
@@ -95,6 +97,7 @@ namespace Logger {
    * potentially cause messages to not appear when it should have.
    */
   void setLogLevel(LogLevel level){
+    SUPPRESS_UNUSED_WARNING(setLogLevel);
     logLevel_lock.lock();
     logLevel = level;
     logLevel_lock.unlock();
@@ -106,6 +109,7 @@ namespace Logger {
    * will be logged at indentLevel specified.
    */
   void setIndentLevel(int level){
+    SUPPRESS_UNUSED_WARNING(setIndentLevel);
     indentLevel_lock.lock();
     indentLevel = level;
     indentLevel_lock.unlock();
@@ -117,6 +121,7 @@ namespace Logger {
    * Returns true if successfully added the file, false otherwise.
    */
   bool addLogFile(std::string filename){
+    SUPPRESS_UNUSED_WARNING(addLogFile);
     // Open the file (create the file if it doesn't exist, if it does exist, append to it)
     file_ptr logFile(new std::ofstream(filename, std::ofstream::out | std::ofstream::app));
     
@@ -133,12 +138,14 @@ namespace Logger {
    * the file, false otherwise.
    */
   bool removeLogFile(std::string filename){
+    SUPPRESS_UNUSED_WARNING(removeLogFile);
     logFiles[filename]->close();
     return (logFiles.erase(filename) > 0);
   }
   
   // Checks if the message is logged at or above (coarser than) the Logger's log level
   bool canLogMessage(LogLevel messageLogLevel){
+    SUPPRESS_UNUSED_WARNING(canLogMessage);
     auto mLogLevel = messageLogLevel;
     auto loggerLevel = logLevel;
     
@@ -146,17 +153,20 @@ namespace Logger {
   }
 
   void beginLogging(void){
+    SUPPRESS_UNUSED_WARNING(beginLogging);
     logLevel_lock.lock();
     indentLevel_lock.lock();
   }
   
   void endLogging(void){
+    SUPPRESS_UNUSED_WARNING(endLogging);
     logLevel_lock.unlock();
     indentLevel_lock.unlock();
   }
   
   // Performs the actual logging to the appropriate stream depending on type
   void performLogging(std::string message, LogLevel level, int indent){
+    SUPPRESS_UNUSED_WARNING(performLogging);
     beginLogging();
     // place the message at the correct indent level
     std::string indentedMessage = "";
@@ -206,8 +216,8 @@ namespace Logger {
   }
     
   /*
-   * Logs a formatted message according to the type specified, 
-   * at the corresponding level. 
+   * Logs a formatted message according to the type specified 
+   * at the corresponding level with specified indent level. 
    * Messages are expected to have the following format 
    * for the corresponding type:
    * CONSTRUCTOR: SCOPE::CONSTRUCTOR(PARAMS) [type of constructor]
@@ -215,28 +225,46 @@ namespace Logger {
    * METHOD: SCOPE::FUNCTION_NAME(PARAMS)
    * DEBUG: NO FORMAT
    */
-  void log(std::string message, LogType type){
+  void log(std::string message, LogType type, int indent){
     LogType messageType = type;
     std::string formattedMessage = "Called ";
     switch(messageType){
     case LogType::CONSTRUCTOR:
     case LogType::OPERATOR:
     formattedMessage += message;
-    log(formattedMessage, LogLevel::FINEST);
+    log(formattedMessage, LogLevel::FINEST, indent);
     break;
     case LogType::METHOD:
       formattedMessage += message;
-      log(formattedMessage, LogLevel::FINER);
+      log(formattedMessage, LogLevel::FINER, indent);
       break;
     case LogType::DEBUG:
-      log(message, LogLevel::FINER);
+      log(message, LogLevel::FINER, indent);
       break;
     default:
-      log(message);
+      log(message, indent);
     }
     
   }
+
+  // Logs a formatted message according to the type specified at the corresponding level with the current indent level
+  void log(std::string message, LogType type){
+    log(message, type, indentLevel);
+  }
+
+  // Dummy function to suppress unused-function warnings
+  void wno_unused_function_logger(void){
+    SUPPRESS_UNUSED_WARNING(wno_unused_function_logger);
+    // Suppress warnings for overloaded log() functions
+    (void)log("", LogType::METHOD, 1);
+    (void)log("", LogType::METHOD);
+    (void)log("", LogLevel::FINEST, 1);
+    (void)log("", LogLevel::FINEST);
+    (void)log("", 1);
+    (void)log("");
+    (void)log();
+  }
   
-} // end of namespace Logger
+} // end of namespace
 
 #endif
